@@ -22,6 +22,7 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 assignee=$(jq --raw-output .assignee.login "$GITHUB_EVENT_PATH")
+requested_reviewers=$(jq --raw-output .pull_request.requested_reviewers[].login "$GITHUB_EVENT_PATH" | jq -s)
 
 update_review_request() {
   curl -sSL \
@@ -34,7 +35,10 @@ update_review_request() {
 }
 
 if [[ "$action" == "assigned" ]]; then
-  update_review_request 'POST'
+  # https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
+  if [[ " ${requested_reviewers[@]} " =~ " ${assignee} " ]]; then
+    update_review_request 'POST'
+  fi
 elif [[ "$action" == "unassigned" ]]; then
   update_review_request 'DELETE'
 else
