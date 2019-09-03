@@ -41,6 +41,8 @@ update_review_request() {
 
 if [[ "$action" == "assigned" ]]; then
   update_review_request 'POST'
+elif [[ "$action" == "synchronize" ]]; then
+  update_review_request 'POST'
 elif [[ "$action" == "unassigned" ]]; then
   update_review_request 'DELETE'
 else
